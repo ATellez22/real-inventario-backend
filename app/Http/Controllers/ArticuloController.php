@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Models\{
     Articulo
@@ -14,7 +15,8 @@ class ArticuloController extends Controller
      */
     public function index()
     {
-        //
+        $articulo = Articulo::all();
+        return response()->json([$articulo], 200);
     }
 
     /**
@@ -31,7 +33,7 @@ class ArticuloController extends Controller
     public function show($codigo)
     {
         $articulo = Articulo::where('codigo', $codigo)->first();
-
+               
         return !$articulo
             ? response()->json(['descripcion' => 'Inexistente'], 200)
             : response()->json(['descripcion' => $articulo->descripcion], 200);

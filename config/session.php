@@ -131,6 +131,8 @@ return [
         Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
     ),
 
+
+    
     /*
     |--------------------------------------------------------------------------
     | Session Cookie Path
@@ -197,5 +199,7 @@ return [
     */
 
     'same_site' => 'lax',
+
+    'csrf_cookie' => true,
 
 ];

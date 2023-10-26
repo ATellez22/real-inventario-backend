@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-
-use App\Models\{
-    Articulo
-};
+use App\Models\conf_guardado;
 
 use Exception;
 
@@ -18,31 +15,33 @@ class InventarioController extends Controller
 
     public function index()
     {
-        // $articles = test_inventario::all();
+        try {
+            $confGuardadoData = conf_guardado::select('base', 'dia')->first();
+            $base = $confGuardadoData->base;           
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+        }
+           
+        $result = DB::table($base)->get();
+        return response()->json([$result], 200);
 
-        // return $articles->isEmpty()
-        //     ? response()->json(['message' => 'No se encontraron registros'], 200)
-        //     : response()->json($articles, 200);
-
-        $articulo = Articulo::limit(20)->get();;
-
-        return response()->json([$articulo], 200);
     }
 
 
     public function store(Request $request) //Guardar inventario
     {
-
+             
         $validator = Validator::make($request->all(), [
             'txt_usuario' => 'required|string|max:12',
             'sel_conteo' => 'required|numeric',
             'txt_ubicacion' => 'required|string|max:9',
             'txt_codigo' => 'required|numeric|min:1|max:9999999999999',
             'txt_descripcion' => 'required|string',
-            'txt_cantidad' => 'required|numeric|min:-9999|max:9999',
+            'txt_cantidad' => 'required|numeric|between:-9999,9999', // Acepta números decimales en el rango -9999 a 9999
             'uuid' => 'required|string'
         ]);
 
+        
         if ($validator->fails()) {
             // Manejar los errores de validación
             return response()->json([
@@ -65,9 +64,10 @@ class InventarioController extends Controller
         $DateAndTime = date('Y-m-d H:i:s', time());
 
         try {
-            //$confGuardadoData = conf_guardado::select('base', 'dia')->first();
-            $base = "test_inventario";
-            $dia = "1";
+            $confGuardadoData = conf_guardado::select('base', 'dia')->first();
+            $base = $confGuardadoData->base;
+            $dia = $confGuardadoData->dia;         
+
         } catch (Exception $e) {
             error_log($e->getMessage());
         }
@@ -612,10 +612,11 @@ class InventarioController extends Controller
         }
 
         return response()->json($flag);
+
+        /***************************************************************************************/
     }
 
-    /***************************************************************************************/
-
+    
     public function show(Request $request)
     {
 
@@ -624,10 +625,17 @@ class InventarioController extends Controller
             'sel_conteo' => 'required|numeric',
         ]);
 
+        if ($validator->fails()) {
+            // Manejar los errores de validación
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         try {
-             //$confGuardadoData = conf_guardado::select('base', 'dia')->first();
-             $base = "test_inventario";
-             $dia = "1";
+            $confGuardadoData = conf_guardado::select('base', 'dia')->first();
+            $base = $confGuardadoData->base;
+            $dia = $confGuardadoData->dia;
         } catch (Exception $e) {
             error_log($e->getMessage());
         }
